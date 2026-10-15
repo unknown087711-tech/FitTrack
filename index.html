@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7f5">
+  <meta name="description" content="FitTrack — catat aktivitas, pantau progres, dan rencanakan olahraga.">
+  <title>FitTrack — Bergerak Lebih Aktif</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="FitTrack.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <!-- Ikon vektor dipakai ulang, tanpa library ikon tambahan. -->
+  <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="4"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4M4 20h17M9 17v-6M14 17V7M19 17V3"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2.5 6M3 4v7h7"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 22c4 0 7-3 7-7 0-4-2-6-4-8 0 3-1.5 4-2 4 0-4-2-7-5-9 0 5-4 8-4 13 0 4 3 7 8 7Z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7M10 11v6m4-6v6"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="m13 2-9 11h7l-1 9 10-12h-7z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4h16v-4"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2"/><path d="m21 16-5-5L5 21"/></symbol>
+  </svg>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#dashboard" data-nav="dashboard" aria-label="Beranda FitTrack">
+        <span class="brand-mark"><svg class="icon"><use href="#i-bolt"></use></svg></span>
+        <span>fit<span class="accent-text">track</span><small>HIDUP AKTIF</small></span>
+      </a>
+      <div class="sidebar-label">MENU UTAMA</div>
+      <nav class="side-nav" aria-label="Navigasi utama">
+        <button class="nav-link active" data-nav="dashboard"><svg class="icon"><use href="#i-home"></use></svg>Beranda</button>
+        <button class="nav-link" data-nav="activity"><svg class="icon"><use href="#i-activity"></use></svg>Aktivitas Saya</button>
+        <button class="nav-link" data-nav="schedule"><svg class="icon"><use href="#i-calendar"></use></svg>Jadwal</button>
+        <button class="nav-link" data-nav="routes"><svg class="icon"><use href="#i-map"></use></svg>Rute & GPS</button>
+        <button class="nav-link" data-nav="camera"><svg class="icon"><use href="#i-camera"></use></svg>Kamera & Galeri</button>
+        <button class="nav-link" data-nav="stats"><svg class="icon"><use href="#i-chart"></use></svg>Statistik</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-promo"><span class="mini-pill">LANGKAH SELANJUTNYA</span><h3>Kemajuan dimulai dari langkah pertama.</h3><p>Langkah kecil, hasil besar.</p><button data-nav="activity" class="promo-action">Mulai olahraga <svg class="icon"><use href="#i-arrow"></use></svg></button></div>
+        <div class="sidebar-foot"><span class="status-dot"></span> RUANG AKTIVITAS FITTRACK</div>
+      </div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-context"><span class="breadcrumb-label">MENU UTAMA</span><span class="breadcrumb-divider">/</span><strong id="current-page-label">Beranda</strong></div>
+        <div class="topbar-right"><span class="today-label" id="today-label"></span><span class="avatar">FT</span></div>
+      </header>
+      <main class="main-content">
+        <section id="view-dashboard" class="view active" aria-labelledby="dashboard-title">
+          <div class="page-eyebrow"><span class="live-dot"></span> PUSAT AKTIVITASMU</div>
+          <div class="page-heading"><div><h1 id="dashboard-title">Jadikan hari ini <span class="accent-text">berarti.</span></h1><p>Pantau aktivitas, jaga konsistensi, dan lihat kemajuanmu.</p></div><button class="btn btn-outline heading-action" data-nav="activity"><svg class="icon"><use href="#i-plus"></use></svg> Aktivitas baru</button></div>
+
+          <div class="hero-card">
+            <div class="hero-copy"><span class="hero-overline"><svg class="icon"><use href="#i-spark"></use></svg> TANTANGAN HARI INI</span><h2>Setiap langkah<br>membawamu <em>maju.</em></h2><p>Ritmemu. Jalanmu. Kemajuanmu.</p><button class="btn btn-white" data-nav="activity">Ayo mulai olahraga <svg class="icon"><use href="#i-arrow"></use></svg></button></div>
+            <div class="hero-art" aria-hidden="true"><div class="hero-ring ring-one"></div><div class="hero-ring ring-two"></div><div class="hero-ring ring-three"></div><svg viewBox="0 0 300 230"><path d="M31 190C59 170 37 120 96 125S121 37 173 58 183 160 237 132 244 48 282 35" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="15" stroke-linecap="round"/><path d="M31 190C59 170 37 120 96 125S121 37 173 58 183 160 237 132 244 48 282 35" fill="none" stroke="#ff865a" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 10"/><circle cx="31" cy="190" r="11" fill="#fff"/><circle cx="282" cy="35" r="12" fill="#ff622f" stroke="#fff" stroke-width="4"/></svg><div class="floating-badge">TERUS BERGERAK <span>↗</span></div></div>
+          </div>
+
+          <div class="toolkit-grid" aria-label="Fitur FitTrack">
+            <button class="toolkit-card" data-nav="schedule"><span class="toolkit-icon orange"><svg class="icon"><use href="#i-calendar"></use></svg></span><strong>Jadwal</strong><span>Atur jadwal olahraga</span><svg class="toolkit-arrow icon"><use href="#i-arrow"></use></svg></button>
+            <button class="toolkit-card" data-nav="routes"><span class="toolkit-icon blue"><svg class="icon"><use href="#i-map"></use></svg></span><strong>Rute</strong><span>Rekam jalurmu</span><svg class="toolkit-arrow icon"><use href="#i-arrow"></use></svg></button>
+            <button class="toolkit-card" data-nav="camera"><span class="toolkit-icon violet"><svg class="icon"><use href="#i-camera"></use></svg></span><strong>Kamera</strong><span>Abadikan momen</span><svg class="toolkit-arrow icon"><use href="#i-arrow"></use></svg></button>
+            <button class="toolkit-card" data-nav="activity"><span class="toolkit-icon green"><svg class="icon"><use href="#i-clock"></use></svg></span><strong>Penghitung Waktu</strong><span>Catat sesi olahraga</span><svg class="toolkit-arrow icon"><use href="#i-arrow"></use></svg></button>
+          </div>
+          <div class="section-title"><div><h2>Ringkasan aktivitas</h2><p>Setiap kemajuan kecil berarti.</p></div><span class="micro-label">SEPANJANG WAKTU</span></div>
+          <div class="metric-grid">
+            <article class="metric-card"><div class="metric-top"><span class="metric-icon orange"><svg class="icon"><use href="#i-activity"></use></svg></span><span class="metric-flag">TOTAL</span></div><strong id="dash-total">0</strong><span>Aktivitas tercatat</span></article>
+            <article class="metric-card"><div class="metric-top"><span class="metric-icon violet"><svg class="icon"><use href="#i-route"></use></svg></span><span class="metric-flag">JARAK</span></div><strong><span id="dash-distance">0.0</span><small> km</small></strong><span>Jarak tercatat melalui GPS</span></article>
+            <article class="metric-card"><div class="metric-top"><span class="metric-icon blue"><svg class="icon"><use href="#i-clock"></use></svg></span><span class="metric-flag">DURASI</span></div><strong id="dash-duration">0mnt</strong><span>Total waktu bergerak</span></article>
+            <article class="metric-card"><div class="metric-top"><span class="metric-icon green"><svg class="icon"><use href="#i-flame"></use></svg></span><span class="metric-flag">BERUNTUN</span></div><strong><span id="dash-streak">0</span><small> hari</small></strong><span>Hari aktif berturut-turut</span></article>
+          </div>
+
+          <div class="dashboard-columns">
+            <article class="surface-card weekly-card"><div class="card-header"><div><h3>Aktivitas mingguan</h3><p>Durasi olahraga · 7 hari terakhir</p></div><span class="card-header-icon"><svg class="icon"><use href="#i-chart"></use></svg></span></div><div class="bar-chart" id="dashboard-chart" aria-label="Grafik aktivitas tujuh hari"></div><div class="chart-footer"><span><i class="legend-square"></i> Waktu bergerak</span><strong id="weekly-total">0 menit minggu ini</strong></div></article>
+            <article class="surface-card quick-card"><div class="card-header"><div><h3>Mulai cepat</h3><p>Pilih jenis olahragamu</p></div><span class="card-header-icon"><svg class="icon"><use href="#i-bolt"></use></svg></span></div><div class="quick-list"><button data-quick-sport="run" class="quick-row"><span class="sport-symbol run">↗</span><span><strong>Lari</strong><small>Temukan ritmemu</small></span><svg class="icon"><use href="#i-chevron"></use></svg></button><button data-quick-sport="bike" class="quick-row"><span class="sport-symbol bike">◉</span><span><strong>Bersepeda</strong><small>Jelajahi rute baru</small></span><svg class="icon"><use href="#i-chevron"></use></svg></button><button data-quick-sport="walk" class="quick-row"><span class="sport-symbol walk">⌁</span><span><strong>Jalan Kaki</strong><small>Mulai dengan satu langkah</small></span><svg class="icon"><use href="#i-chevron"></use></svg></button></div></article>
+          </div>
+          <div class="dashboard-columns second-row"><article class="surface-card"><div class="card-header"><div><h3>Jadwal mendatang</h3><p>Agenda olahraga berikutnya</p></div><button class="text-action" data-nav="schedule">Lihat kalender <svg class="icon"><use href="#i-arrow"></use></svg></button></div><div id="dashboard-upcoming" class="compact-list"></div></article><article class="surface-card route-teaser"><div class="card-header"><div><h3>Jelajahi rute</h3><p>Lihat jalur olahraga yang kamu lalui</p></div><span class="card-header-icon"><svg class="icon"><use href="#i-pin"></use></svg></span></div><div class="route-illustration"><div class="route-line"></div><span class="route-pin pin-a">A</span><span class="route-pin pin-b">B</span></div><button class="text-action" data-nav="routes">Buka pelacak GPS <svg class="icon"><use href="#i-arrow"></use></svg></button></article></div>
+        </section>
+
+        <section id="view-activity" class="view" aria-labelledby="activity-title"><div class="page-eyebrow">TERUS AKTIF DAN SEHAT</div><div class="page-heading"><div><h1 id="activity-title">Catat <span class="accent-text">aktivitasmu.</span></h1><p>Pilih jenis olahraga, lalu tekan Mulai untuk mencatat sesi.</p></div></div>
+          <div class="activity-layout"><article class="surface-card workout-panel"><div class="card-header"><div><h3>Olahraga berlangsung</h3><p>Stopwatch terintegrasi</p></div><span id="timer-status" class="status-badge">SIAP</span></div><div class="sport-selector" role="group" aria-label="Pilih jenis olahraga"><button class="sport-choice selected" data-sport="run">Lari</button><button class="sport-choice" data-sport="bike">Bersepeda</button><button class="sport-choice" data-sport="walk">Jalan Kaki</button><button class="sport-choice" data-sport="workout">Latihan</button></div><div class="timer-core"><div class="timer-orbit"><span class="timer-upper">WAKTU BERJALAN</span><div id="timer-display" class="timer-display">00:00:00</div><span id="timer-type">SESI LARI</span></div></div><div class="timer-actions"><button id="timer-start" class="btn btn-primary"><svg class="icon"><use href="#i-play"></use></svg> Mulai</button><button id="timer-finish" class="btn btn-dark" disabled><svg class="icon"><use href="#i-check"></use></svg> Simpan aktivitas</button><button id="timer-reset" class="btn btn-icon" title="Atur ulang timer" aria-label="Atur ulang timer"><svg class="icon"><use href="#i-reset"></use></svg></button></div><div class="workout-hint"><svg class="icon"><use href="#i-pin"></use></svg> Jarak GPS akan dicatat jika pelacakan rute aktif saat berolahraga.</div></article>
+            <article class="surface-card history-panel"><div class="card-header"><div><h3>Riwayat aktivitas</h3><p>Daftar olahraga yang sudah selesai</p></div><span class="card-header-icon"><svg class="icon"><use href="#i-activity"></use></svg></span></div><div id="activity-history" class="history-list"></div></article></div>
+        </section>
+
+        <section id="view-schedule" class="view" aria-labelledby="schedule-title"><div class="page-eyebrow">RENCANAKAN. LAKUKAN. ULANGI.</div><div class="page-heading"><div><h1 id="schedule-title">Atur <span class="accent-text">jadwalmu.</span></h1><p>Luangkan waktu untuk tetap aktif.</p></div></div>
+          <div class="schedule-layout"><article class="surface-card calendar-card"><div class="calendar-toolbar"><h3 id="calendar-month">Oktober 2026</h3><div class="calendar-buttons"><button id="month-prev" class="icon-button" aria-label="Bulan sebelumnya">‹</button><button id="month-next" class="icon-button" aria-label="Bulan berikutnya">›</button></div></div><div class="calendar-weekdays"><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span></div><div class="calendar-days" id="calendar-days"></div><div class="calendar-legend"><span><i class="legend-square"></i> Ada jadwal olahraga</span><span>Ketuk tanggal untuk memilih</span></div></article>
+            <div class="schedule-side"><article class="surface-card"><div class="card-header"><div><h3>Tambah jadwal</h3><p>Buat target olahraga harian</p></div><span class="card-header-icon"><svg class="icon"><use href="#i-plus"></use></svg></span></div><form id="plan-form" class="plan-form"><label for="plan-title">Nama aktivitas</label><input id="plan-title" maxlength="60" placeholder="Contoh: Lari pagi" required><div class="form-grid"><div><label for="plan-date">Tanggal</label><input id="plan-date" type="date" required></div><div><label for="plan-time">Waktu</label><input id="plan-time" type="time" value="06:30" required></div></div><label for="plan-sport">Jenis olahraga</label><select id="plan-sport"><option value="run">Lari</option><option value="bike">Bersepeda</option><option value="walk">Jalan Kaki</option><option value="workout">Latihan</option></select><button class="btn btn-primary btn-full" type="submit"><svg class="icon"><use href="#i-plus"></use></svg> Simpan jadwal</button></form></article><article class="surface-card"><div class="card-header"><div><h3 id="selected-day-label">Tanggal terpilih</h3><p>Olahraga terjadwal</p></div></div><div class="compact-list" id="selected-day-plans"></div></article></div></div>
+        </section>
+
+        <section id="view-routes" class="view" aria-labelledby="routes-title"><div class="page-eyebrow">JELAJAHI SEKITARMU</div><div class="page-heading"><div><h1 id="routes-title">Rute <span class="accent-text">& GPS.</span></h1><p>Lacak perjalanan olahragamu secara langsung.</p></div><button id="locate-button" class="btn btn-outline"><svg class="icon"><use href="#i-pin"></use></svg> Lokasi saya</button></div>
+          <div class="routes-layout"><article class="surface-card map-card"><div class="map-surface"><div id="route-map"></div><div id="map-fallback" class="map-fallback"><svg class="icon"><use href="#i-map"></use></svg><strong>Peta tidak tersedia</strong><span>Periksa koneksi internet untuk memuat OpenStreetMap.</span></div></div><div class="map-caption">Data peta © Kontributor OpenStreetMap · Memerlukan internet</div></article><div class="routes-side"><article class="surface-card"><div class="card-header"><div><h3>Pelacak GPS</h3><p>Rekam rute olahraga di luar ruangan</p></div><span id="gps-indicator" class="status-badge">NONAKTIF</span></div><div class="gps-distance" id="gps-distance">0.00 <small>km</small></div><div class="gps-subtitle">Jarak rute saat ini</div><p class="gps-message" id="gps-message" role="status">Tekan Mulai lacak untuk meminta izin lokasi.</p><div class="tracking-buttons"><button class="btn btn-primary btn-full" id="track-toggle"><svg class="icon"><use href="#i-play"></use></svg> Mulai lacak</button><button class="btn btn-outline btn-full" id="track-reset">Hapus rute</button></div><a id="open-osm" class="osm-link" href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">Lihat di OpenStreetMap ↗</a></article><article class="surface-card"><div class="card-header"><div><h3>Rute tersimpan</h3><p>Rute yang pernah direkam</p></div></div><div id="saved-routes" class="compact-list"></div></article></div></div>
+        </section>
+
+        <section id="view-camera" class="view" aria-labelledby="camera-title"><div class="page-eyebrow">ABADIKAN MOMEN</div><div class="page-heading"><div><h1 id="camera-title">Kamera <span class="accent-text">& galeri.</span></h1><p>Simpan kenangan dari setiap aktivitasmu.</p></div></div><div class="camera-layout"><article class="surface-card camera-panel"><div class="camera-viewport"><video id="camera-video" autoplay muted playsinline></video><div id="camera-placeholder" class="camera-placeholder"><div class="camera-placeholder-icon"><svg class="icon"><use href="#i-camera"></use></svg></div><strong>Abadikan momennya.</strong><span>Aktifkan kamera untuk memotret momen olahragamu.</span></div></div><div class="camera-controls"><button id="camera-start" class="btn btn-primary"><svg class="icon"><use href="#i-camera"></use></svg> Aktifkan kamera</button><button id="camera-snap" class="btn btn-dark" disabled>Ambil foto</button><button id="camera-flip" class="btn btn-outline" disabled>Balik kamera</button><button id="camera-stop" class="btn btn-outline" disabled>Matikan</button></div><p class="helper-note">Kamera memerlukan izin browser serta akses melalui localhost atau HTTPS.</p><canvas id="photo-canvas" hidden></canvas></article><article class="surface-card gallery-panel"><div class="card-header"><div><h3>Galeri olahraga</h3><p>Disimpan di browser perangkat ini</p></div><span class="card-header-icon"><svg class="icon"><use href="#i-image"></use></svg></span></div><label class="upload-action"><svg class="icon"><use href="#i-upload"></use></svg> Tambah foto dari perangkat<input id="photo-upload" type="file" accept="image/*" hidden></label><div class="gallery-grid" id="gallery-grid"></div></article></div></section>
+
+        <section id="view-stats" class="view" aria-labelledby="stats-title"><div class="page-eyebrow">KONSISTENSI ITU PENTING</div><div class="page-heading"><div><h1 id="stats-title">Pantau <span class="accent-text">statistikmu.</span></h1><p>Lihat perkembangan dari setiap sesi yang selesai.</p></div></div><div class="stat-banner"><span>RINGKASAN KESELURUHAN</span><h2 id="stats-headline">Perjalananmu dimulai dari satu aktivitas.</h2><p id="stats-subtitle">Catat aktivitas pertama untuk melihat statistikmu.</p></div><div class="metric-grid stats-metrics"><article class="metric-card"><span class="metric-description">TOTAL AKTIVITAS</span><strong id="stats-count">0</strong><span>Sesi selesai</span></article><article class="metric-card"><span class="metric-description">TOTAL JARAK</span><strong><span id="stats-distance">0.0</span><small> km</small></strong><span>Diukur dengan GPS</span></article><article class="metric-card"><span class="metric-description">DURASI AKTIF</span><strong id="stats-time">0mnt</strong><span>Seluruh sesi yang tercatat</span></article><article class="metric-card"><span class="metric-description">RATA-RATA DURASI</span><strong id="stats-average">0mnt</strong><span>Durasi per sesi</span></article></div><div class="dashboard-columns"><article class="surface-card"><div class="card-header"><div><h3>7 hari terakhir</h3><p>Durasi dalam menit</p></div></div><div class="bar-chart" id="stats-chart"></div></article><article class="surface-card"><div class="card-header"><div><h3>Jenis aktivitas</h3><p>Jumlah berdasarkan olahraga</p></div></div><div id="sport-breakdown" class="breakdown-list"></div></article></div></section>
+      </main>
+      <footer class="app-footer">© <span id="footer-year"></span> FitTrack <span>·</span> Dibuat untuk menemani setiap aktivitasmu.</footer>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navigasi mobile"><button class="mobile-link active" data-nav="dashboard"><svg class="icon"><use href="#i-home"></use></svg><span>Beranda</span></button><button class="mobile-link" data-nav="activity"><svg class="icon"><use href="#i-activity"></use></svg><span>Aktivitas</span></button><button class="mobile-link" data-nav="schedule"><svg class="icon"><use href="#i-calendar"></use></svg><span>Jadwal</span></button><button class="mobile-link" data-nav="routes"><svg class="icon"><use href="#i-map"></use></svg><span>Rute</span></button><button class="mobile-link" data-nav="stats"><svg class="icon"><use href="#i-chart"></use></svg><span>Statistik</span></button></nav>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
